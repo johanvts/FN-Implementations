@@ -1,0 +1,51 @@
+#!/usr/bin/perl
+
+$idxfn=shift;
+
+$datfn=$idxfn;
+$datfn=~s/\.idx/.dat/;
+
+$datpfn=$idxfn;
+$datpfn=~s/r\.idx/p.dat/;
+
+$datqfn=$idxfn;
+$datqfn=~s/r\.idx/q.dat/;
+
+$gpfn=$idxfn;
+$gpfn=~s/r\.idx/.gp/;
+
+$pngfn=$idxfn;
+$pngfn=~s/r\.idx/.png/;
+
+$idxfn=~/^(.*)-(\d+)[pr]?\.idx/;
+
+$nproj=$2;
+$dbname=$1;
+
+print "set xlabel \"cut (number of points examined)\"\n";
+print "set ylabel \"recall and approximation\"\n";
+print "set term png\n";
+print "set key bottom right\n";
+print "set yrange [1:*]\n";
+print "set output \"$pngfn\"\n";
+
+if ($idxfn=~/norm-(\d+)-(\d+)r/) {
+  $title="Normal in $1 dimensions, $2 projections";
+} elsif ($idxfn=~/uni-(\d+)-(\d+)r/) {
+  $title="Uniform in $1 dimensions, $2 projections";
+} elsif ($idxfn=~/nasa-(\d+)r/) {
+  $title="NASA database, $1 projections";
+} elsif ($idxfn=~/colors-(\d+)r/) {
+  $title="Colors database, $1 projections";
+}
+
+print "set title \"$title\"\n";
+
+print "plot "
+     ."\"$datpfn\" using 2:3 with linespoints title \"projected value approx\", "
+     ."\"$datqfn\" using 2:3 with linespoints title \"qry-dep approx\"\n";
+
+#     ."\"$datfn\" using 2:3 with linespoints title \"rank approx\", "
+#     ."\"$datpfn\" using 2:4 with linespoints title \"projected value recall\", "
+#     ."\"$datfn\" using 2:4 with linespoints title \"rank recall\", "
+#     ."\"$datqfn\" using 2:4 with linespoints title \"qry-dep recall\"\n";

@@ -1,0 +1,36 @@
+#!/usr/bin/perl
+
+$idxfn=shift;
+
+$datfn=$idxfn;
+$datfn=~s/\.idx/.dat/;
+
+$idxfn=~/^(.*)-(\d+)[pqr]?\.idx/;
+
+$nproj=$2;
+$dbname=$1;
+
+$n=100000;
+$n=112682 if $idxfn=~/colors/;
+$n=40150 if $idxfn=~/nasa/;
+
+$|=1;
+
+# for ($k=1;$k<=10;$k++) {
+#   $cut=$k*$nproj;
+for ($k=10;$k<=800;$k+=10) {
+  $cut=$k;
+#  $_="src/spaces/vectors/genqueries $dbname.bin 0 10000 $cut 0 | bin/query-furthest-vectors $idxfn 2> /dev/null | wc";
+#  print "$_\n";
+  open(PROG,"src/spaces/vectors/genqueries $dbname.bin 0 1000 $cut 0 "
+           ."| bin/query-furthest-vectors $idxfn 2> /dev/null|");
+  ($apxs,$prs,$n)=(0,0,0);
+  while (<PROG>) {
+    next unless /FURTHESTDATA ([0-9\.\-+]+) ([0-9\.\-+]+)\n/;
+    $apxs+=$1;
+    $prs+=$2;
+    $n++;
+  }
+  printf "%s\t%d\t%f\t%f\n",
+    $idxfn,$cut,$apxs/$n,$prs/$n;
+}
